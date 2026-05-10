@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mother's Day Surprise</title>
+  <style>
+    :root {
+      --blush: #f9d6e5;
+      --cream: #fff7e8;
+      --lavender: #e9ddff;
+      --text: #5f4b66;
+      --accent: #ff7fb0;
+      --accent-dark: #e85d96;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Poppins", "Segoe UI", system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: linear-gradient(135deg, var(--blush), var(--cream), var(--lavender));
+      background-size: 300% 300%;
+      animation: gradientShift 10s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .screen {
+      width: min(92vw, 430px);
+      text-align: center;
+      padding: 1.25rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    h1 {
+      margin: 0 0 1rem;
+      font-size: clamp(1.6rem, 5.2vw, 2rem);
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .cta {
+      border: 0;
+      border-radius: 999px;
+      padding: 1rem 1.8rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      box-shadow: 0 12px 24px rgba(232, 93, 150, 0.25);
+      cursor: pointer;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .balloon-grid {
+      margin-top: 0.75rem;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+
+    .music-toggle {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #6b4a67;
+      background: rgba(255, 255, 255, 0.75);
+      box-shadow: 0 4px 10px rgba(95, 75, 102, 0.12);
+      cursor: pointer;
+      margin-bottom: 0.55rem;
+    }
+
+    .audio-status {
+      margin: 0 0 0.7rem;
+      font-size: 0.82rem;
+      color: #7a5875;
+    }
+
+    .balloon-card {
+      position: relative;
+      aspect-ratio: 3 / 4;
+      border: 0;
+      border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.45);
+      box-shadow: 0 8px 20px rgba(95, 75, 102, 0.12);
+      overflow: hidden;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .balloon {
+      position: absolute;
+      inset: 10% 20% 18%;
+      border-radius: 50% 50% 45% 45%;
+      animation: float 2.5s ease-in-out infinite;
+    }
+
+    .balloon::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: 2px;
+      height: 42px;
+      background: rgba(95, 75, 102, 0.5);
+      transform: translateX(-50%);
+    }
+
+    .b1 { background: #ff8eb3; }
+    .b2 { background: #ffc19e; animation-delay: .2s; }
+    .b3 { background: #b7a7ff; animation-delay: .4s; }
+    .b4 { background: #8fd3ff; animation-delay: .1s; }
+    .b5 { background: #ffd9f3; animation-delay: .3s; }
+    .b6 { background: #b9f0c9; animation-delay: .5s; }
+
+    .photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      display: block;
+    }
+
+    .balloon-card.popped .balloon {
+      display: none;
+    }
+
+    .balloon-card.popped .photo {
+      opacity: 1;
+    }
+
+    .finale {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1.2rem;
+      background: rgba(255, 247, 232, 0.93);
+      backdrop-filter: blur(2px);
+      z-index: 20;
+    }
+
+    .photo-focus {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(49, 33, 52, 0.68);
+      backdrop-filter: blur(4px);
+      z-index: 18;
+      animation: fadeIn 320ms ease forwards;
+      padding: 1rem;
+    }
+
+    .photo-focus-card {
+      width: min(92vw, 420px);
+      border-radius: 1rem;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 16px 38px rgba(0, 0, 0, 0.28);
+      transform: scale(0.85);
+      opacity: 0;
+      animation: popOutPhoto 460ms cubic-bezier(.17, .89, .32, 1.28) forwards;
+    }
+
+    .photo-focus-img {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-focus-caption {
+      margin: 0;
+      padding: 0.85rem 0.95rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #6b4a67;
+      background: linear-gradient(180deg, #fff7fc 0%, #fff 100%);
+    }
+
+    .photo-focus.hide {
+      animation: fadeOut 320ms ease forwards;
+    }
+
+    .photo-focus.hide .photo-focus-card {
+      animation: shrinkPhoto 320ms ease forwards;
+    }
+
+    .finale-message {
+      font-size: clamp(1.8rem, 7vw, 2.6rem);
+      line-height: 1.25;
+      font-weight: 700;
+      color: #774c65;
+      text-shadow: 0 6px 18px rgba(119, 76, 101, 0.15);
+    }
+
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 25;
+      overflow: hidden;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 14px;
+      opacity: 0.9;
+      transform-origin: center;
+      animation: confettiBurst 1600ms ease-out forwards;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.07); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    @keyframes confettiBurst {
+      0% {
+        transform: translate(var(--x-start), var(--y-start)) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--x-end), var(--y-end)) rotate(620deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    @keyframes popOutPhoto {
+      from {
+        transform: scale(0.85);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes shrinkPhoto {
+      from {
+        transform: scale(1);
+        opacity: 1;
+      }
+      to {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="landing" class="screen">
+    <button class="cta" id="startBtn" type="button" aria-label="Start Mother's Day surprise">Click here for a surprise!</button>
+  </main>
+
+  <section id="game" class="screen hidden" aria-live="polite">
+    <h1>Pop the balloons, Mom!</h1>
+    <button id="musicToggle" class="music-toggle" type="button" aria-pressed="false" aria-label="Mute Music">Mute Music</button>
+    <p id="audioStatus" class="audio-status hidden" role="status" aria-live="polite">Music couldn't start automatically. Tap “Unmute Music” to try again.</p>
+    <div class="balloon-grid" id="balloonGrid">
+      <button class="balloon-card" data-index="1" type="button" aria-label="Pop balloon 1">
+        <span class="balloon b1" aria-hidden="true"></span>
+        <img class="photo" src="mom1.jpg" alt="Mom smiling in a candid family moment" />
+      </button>
+      <button class="balloon-card" data-index="2" type="button" aria-label="Pop balloon 2">
+        <span class="balloon b2" aria-hidden="true"></span>
+        <img class="photo" src="mom2.jpg" alt="Mom celebrating with the family" />
+      </button>
+      <button class="balloon-card" data-index="3" type="button" aria-label="Pop balloon 3">
+        <span class="balloon b3" aria-hidden="true"></span>
+        <img class="photo" src="mom3.jpg" alt="Mom sharing a joyful smile outdoors" />
+      </button>
+      <button class="balloon-card" data-index="4" type="button" aria-label="Pop balloon 4">
+        <span class="balloon b4" aria-hidden="true"></span>
+        <img class="photo" src="mom4.jpg" alt="Mom during a special day with loved ones" />
+      </button>
+      <button class="balloon-card" data-index="5" type="button" aria-label="Pop balloon 5">
+        <span class="balloon b5" aria-hidden="true"></span>
+        <img class="photo" src="mom5.jpg" alt="Mom enjoying a warm family memory" />
+      </button>
+      <button class="balloon-card" data-index="6" type="button" aria-label="Pop balloon 6">
+        <span class="balloon b6" aria-hidden="true"></span>
+        <img class="photo" src="mom6.jpg" alt="Mom in a happy portrait-style moment" />
+      </button>
+    </div>
+  </section>
+
+  <section id="finale" class="finale hidden" role="dialog" aria-modal="true" aria-label="Mother's Day message">
+    <p class="finale-message">Happy Mother's Day! You are our world.</p>
+  </section>
+
+  <section id="photoFocus" class="photo-focus hidden" role="dialog" aria-modal="true" aria-label="Popped balloon photo">
+    <figure class="photo-focus-card">
+      <img id="focusPhoto" class="photo-focus-img" src="" alt="" />
+      <figcaption id="focusCaption" class="photo-focus-caption"></figcaption>
+    </figure>
+  </section>
+
+  <div id="confettiLayer" class="confetti-layer hidden" aria-hidden="true"></div>
+
+  <!-- Replace placeholder audio file paths with real assets before production use. -->
+  <audio id="bgMusic" preload="auto" loop src="placeholder-mothers-day-song.mp3"></audio>
+  <audio id="popSfx" preload="auto" src="placeholder-balloon-pop.mp3"></audio>
+
+  <script>
+    const landing = document.getElementById("landing");
+    const game = document.getElementById("game");
+    const finale = document.getElementById("finale");
+    const confettiLayer = document.getElementById("confettiLayer");
+    const photoFocus = document.getElementById("photoFocus");
+    const focusPhoto = document.getElementById("focusPhoto");
+    const focusCaption = document.getElementById("focusCaption");
+    const startBtn = document.getElementById("startBtn");
+    const musicToggle = document.getElementById("musicToggle");
+    const audioStatus = document.getElementById("audioStatus");
+    const bgMusic = document.getElementById("bgMusic");
+    const popSfx = document.getElementById("popSfx");
+    const balloonCards = [...document.querySelectorAll(".balloon-card")];
+    const photos = [...document.querySelectorAll(".photo")];
+    const PHOTO_FOCUS_HIDE_ANIMATION_MS = 320;
+    const PHOTO_FOCUS_DURATION_MS = 30000;
+    const fallbackPhotoSvg = `<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"600\" height=\"800\">
+      <rect width=\"100%\" height=\"100%\" fill=\"#f5dff0\"/>
+      <text x=\"50%\" y=\"50%\" dominant-baseline=\"middle\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"30\" fill=\"#774c65\">Mom Photo</text>
+    </svg>`;
+    const fallbackPhotoSrc = `data:image/svg+xml,${encodeURIComponent(fallbackPhotoSvg)}`;
+
+    let poppedCount = 0;
+    let finaleShown = false;
+    let photoFocusTimer;
+
+    function hidePhotoFocus(animated = true) {
+      clearTimeout(photoFocusTimer);
+      if (photoFocus.classList.contains("hidden")) return;
+
+      if (animated) {
+        photoFocus.classList.add("hide");
+        setTimeout(() => {
+          photoFocus.classList.add("hidden");
+          photoFocus.classList.remove("hide");
+        }, PHOTO_FOCUS_HIDE_ANIMATION_MS);
+        return;
+      }
+      photoFocus.classList.add("hidden");
+      photoFocus.classList.remove("hide");
+    }
+
+    function showPhotoFocus(photo) {
+      clearTimeout(photoFocusTimer);
+      focusPhoto.src = photo.src;
+      focusPhoto.alt = photo.alt;
+      focusCaption.textContent = photo.alt || "A special Mother's Day memory";
+      photoFocus.classList.remove("hidden", "hide");
+      photoFocusTimer = setTimeout(() => hidePhotoFocus(true), PHOTO_FOCUS_DURATION_MS);
+    }
+
+    function launchConfetti() {
+      confettiLayer.classList.remove("hidden");
+      confettiLayer.innerHTML = "";
+      const colors = ["#ff8eb3", "#b7a7ff", "#8fd3ff", "#ffd166", "#b9f0c9", "#fcbf49"];
+
+      for (let i = 0; i < 80; i += 1) {
+        const bit = document.createElement("span");
+        bit.className = "confetti";
+        bit.style.left = `${Math.random() * 100}%`;
+        bit.style.top = `${Math.random() * 35}%`;
+        bit.style.background = colors[Math.floor(Math.random() * colors.length)];
+        bit.style.setProperty("--x-start", `${(Math.random() - 0.5) * 20}px`);
+        bit.style.setProperty("--y-start", `${(Math.random() - 0.5) * 20}px`);
+        bit.style.setProperty("--x-end", `${(Math.random() - 0.5) * 320}px`);
+        bit.style.setProperty("--y-end", `${180 + Math.random() * 460}px`);
+        bit.style.animationDelay = `${Math.random() * 120}ms`;
+        confettiLayer.appendChild(bit);
+      }
+    }
+
+    function showFinaleIfReady() {
+      if (poppedCount === balloonCards.length && !finaleShown) {
+        finaleShown = true;
+        setTimeout(() => {
+          finale.classList.remove("hidden");
+          launchConfetti();
+        }, 1000);
+      }
+    }
+
+    function popBalloon(card) {
+      if (card.classList.contains("popped")) return;
+
+      card.classList.add("popped");
+      poppedCount += 1;
+      const photo = card.querySelector(".photo");
+      if (photo) showPhotoFocus(photo);
+
+      popSfx.currentTime = 0;
+      popSfx.play().catch((error) => {
+        console.warn("Pop sound playback failed:", error?.message || error);
+        audioStatus.textContent = "Sound effects are unavailable on this browser/device.";
+        audioStatus.classList.remove("hidden");
+      });
+
+      showFinaleIfReady();
+    }
+
+    startBtn.addEventListener("click", () => {
+      landing.classList.add("hidden");
+      game.classList.remove("hidden");
+
+      bgMusic.play().catch((error) => {
+        console.warn("Background music playback failed:", error?.message || error);
+        audioStatus.textContent = "Music couldn't start automatically. Tap 'Unmute Music' to try again.";
+        audioStatus.classList.remove("hidden");
+      });
+    });
+
+    musicToggle.addEventListener("click", () => {
+      bgMusic.muted = !bgMusic.muted;
+      musicToggle.setAttribute("aria-pressed", String(bgMusic.muted));
+      const label = bgMusic.muted ? "Unmute Music" : "Mute Music";
+      musicToggle.textContent = label;
+      musicToggle.setAttribute("aria-label", label);
+      if (!bgMusic.muted) {
+        bgMusic.play().catch(() => {
+          audioStatus.textContent = "Music couldn't start automatically. Tap 'Unmute Music' to try again.";
+          audioStatus.classList.remove("hidden");
+        });
+      }
+    });
+
+    photos.forEach((photo) => {
+      photo.addEventListener("error", () => {
+        if (photo.hasAttribute("data-fallback-applied")) return;
+        photo.setAttribute("data-fallback-applied", "true");
+        photo.alt = "Family photo placeholder";
+        photo.src = fallbackPhotoSrc;
+      });
+    });
+
+    balloonCards.forEach((card) => {
+      card.addEventListener("click", () => popBalloon(card));
+    });
+
+    photoFocus.addEventListener("click", () => {
+      hidePhotoFocus(true);
+    });
+  </script>
+</body>
+</html>
